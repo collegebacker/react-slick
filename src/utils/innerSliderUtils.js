@@ -6,10 +6,10 @@ export function clamp(number, lowerBound, upperBound) {
 
 export const safePreventDefault = event => {
   const passiveEvents = ["onTouchStart", "onTouchMove", "onWheel"];
-  if(!passiveEvents.includes(event._reactName)) {
+  if (!passiveEvents.includes(event._reactName)) {
     event.preventDefault();
   }
-}
+};
 
 export const getOnDemandLazySlides = spec => {
   let onDemandSlides = [];
@@ -89,8 +89,9 @@ export const canGoNext = spec => {
     if (spec.centerMode && spec.currentSlide >= spec.slideCount - 1) {
       canGo = false;
     } else if (
-      spec.slideCount <= spec.slidesToShow ||
-      spec.currentSlide >= spec.slideCount - spec.slidesToShow
+      !spec.centerMode &&
+      (spec.slideCount <= spec.slidesToShow ||
+        spec.currentSlide >= spec.slideCount - spec.slidesToShow)
     ) {
       canGo = false;
     }
@@ -219,7 +220,11 @@ export const slideHandler = spec => {
       else if (slideCount % slidesToScroll !== 0) finalSlide = 0;
     }
 
-    if (!infinite && animationSlide + slidesToShow >= slideCount) {
+    if (
+      !infinite &&
+      animationSlide + slidesToShow >= slideCount &&
+      !centerMode
+    ) {
       finalSlide = slideCount - slidesToShow;
     }
 
@@ -386,9 +391,12 @@ export const swipeMove = (e, spec) => {
   let touchSwipeLength = touchObject.swipeLength;
   if (!infinite) {
     if (
-      (currentSlide === 0 && (swipeDirection === "right" || swipeDirection === "down")) ||
-      (currentSlide + 1 >= dotCount && (swipeDirection === "left" || swipeDirection === "up")) ||
-      (!canGoNext(spec) && (swipeDirection === "left" || swipeDirection === "up"))
+      (currentSlide === 0 &&
+        (swipeDirection === "right" || swipeDirection === "down")) ||
+      (currentSlide + 1 >= dotCount &&
+        (swipeDirection === "left" || swipeDirection === "up")) ||
+      (!canGoNext(spec) &&
+        (swipeDirection === "left" || swipeDirection === "up"))
     ) {
       touchSwipeLength = touchObject.swipeLength * edgeFriction;
       if (edgeDragged === false && onEdge) {
